@@ -1,0 +1,14 @@
+
+#--- Download GENCODE annotation files
+wget ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_25/gencode.v25.annotation.gtf.gz
+
+#--- Creates strandedless hierarchy of GENCODE genic annotations: TSS_2KB, TRANSCRIPT_2KB, INTERGENIC
+mergeBed -i tss_2kb.bed.gz | gzip -c > tss_2kb.hierarchy.bed.gz
+
+mergeBed -i tss_2kb.protein.bed.gz | gzip -c > tss_2kb.protein.hierarchy.bed.gz
+
+mergeBed -i tss_2kb.lincrna.bed.gz | gzip -c > tss_2kb.lincrna.hierarchy.bed.gz
+
+mergeBed -i transcript_2kb.bed.gz > temp.bed; subtractBed -a temp.bed -b tss_2kb.hierarchy.bed.gz | sortBed | gzip -c > transcript_2kb.hierarchy.bed.gz; rm temp.bed
+
+mergeBed -i intergenic.bed.gz > temp.bed; subtractBed -a temp.bed -b transcript_2kb.hierarchy.bed.gz | subtractBed -a stdin -b tss_2kb.hierarchy.bed.gz | sortBed | gzip -c > intergenic.hierarchy.bed.gz; rm temp.bed
